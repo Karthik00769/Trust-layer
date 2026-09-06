@@ -1,15 +1,28 @@
+# Android / IntelliJ
 *.iml
 .gradle
 /local.properties
+local.properties
+.DS_Store
+
+# Android Studio / IntelliJ
+.idea/
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
+
+# Build and generated directories
 /build
+**/build/
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+.kotlin/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
