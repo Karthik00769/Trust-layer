@@ -11,3 +11,4 @@ class BuddyResponse(BaseModel):
     threats: list[str]
     explanation: str
     recommended_action: str
+    rag_knowledge: list[dict]

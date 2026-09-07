@@ -1,0 +1,177 @@
+[
+  {
+    "id": "phishing_general",
+    "topic": "phishing",
+    "signals": [
+      "credential_request",
+      "suspicious_url_keywords"
+    ],
+    "keywords": [
+      "phishing",
+      "fake link",
+      "suspicious link",
+      "login",
+      "verify",
+      "verification"
+    ],
+    "knowledge": "Phishing attacks attempt to trick users into visiting fraudulent websites or providing sensitive information. Suspicious links combined with requests for login credentials, verification, or financial actions are strong warning signs."
+  },
+  {
+    "id": "bank_impersonation",
+    "topic": "bank impersonation",
+    "signals": [
+      "financial_brand_mentioned",
+      "account_threat",
+      "possible_brand_impersonation"
+    ],
+    "keywords": [
+      "bank",
+      "sbi",
+      "hdfc",
+      "icici",
+      "axis",
+      "kotak",
+      "account"
+    ],
+    "knowledge": "Financial scams commonly impersonate banks or financial institutions. A message claiming to represent a bank should be treated cautiously when it creates urgency, threatens account action, or directs the user to an unfamiliar website."
+  },
+  {
+    "id": "kyc_scam",
+    "topic": "KYC scam",
+    "signals": [
+      "financial_action",
+      "account_threat",
+      "financial_context"
+    ],
+    "keywords": [
+      "kyc",
+      "verify",
+      "verification",
+      "account blocked",
+      "account suspended"
+    ],
+    "knowledge": "KYC scams often use account suspension or deactivation threats to pressure users into completing an immediate verification process. Users should independently contact their financial institution through an official channel rather than following an unsolicited link."
+  },
+  {
+    "id": "otp_credential_theft",
+    "topic": "credential theft",
+    "signals": [
+      "credential_request"
+    ],
+    "keywords": [
+      "otp",
+      "password",
+      "pin",
+      "cvv",
+      "verification code",
+      "login"
+    ],
+    "knowledge": "Requests for OTPs, passwords, PINs, CVVs, or other authentication credentials are high-risk indicators in unsolicited financial messages. Users should never disclose authentication credentials through suspicious messages or links."
+  },
+  {
+    "id": "upi_payment_scam",
+    "topic": "UPI and payment scams",
+    "signals": [
+      "financial_action",
+      "financial_context"
+    ],
+    "keywords": [
+      "upi",
+      "payment",
+      "transfer",
+      "pay",
+      "transaction"
+    ],
+    "knowledge": "Payment scams may pressure users into transferring money or approving transactions. Unexpected payment requests should be independently verified using trusted contact information before any transaction is authorized."
+  },
+  {
+    "id": "refund_scam",
+    "topic": "refund scam",
+    "signals": [
+      "financial_action",
+      "financial_context"
+    ],
+    "keywords": [
+      "refund",
+      "cashback",
+      "payment"
+    ],
+    "knowledge": "Refund scams may claim that a user is eligible for a refund and then direct them to a fraudulent website or request sensitive information. Unexpected refund claims should be verified through the official service or financial institution."
+  },
+  {
+    "id": "urgency_manipulation",
+    "topic": "social engineering",
+    "signals": [
+      "urgency",
+      "account_threat"
+    ],
+    "keywords": [
+      "urgent",
+      "urgently",
+      "immediately",
+      "within 24 hours",
+      "act now",
+      "action required"
+    ],
+    "knowledge": "Scammers frequently use urgency and time pressure to prevent users from carefully verifying a request. Urgent financial requests should be independently verified before clicking links, sharing information, or making payments."
+  },
+  {
+    "id": "malicious_url",
+    "topic": "malicious URL",
+    "signals": [
+      "suspicious_url_keywords",
+      "suspicious_tld",
+      "ip_address_url",
+      "many_subdomains",
+      "http",
+      "possible_brand_impersonation"
+    ],
+    "keywords": [
+      "http",
+      "ip address",
+      ".xyz",
+      ".top",
+      ".click",
+      ".link",
+      ".shop",
+      ".online",
+      ".site",
+      "verify",
+      "login",
+      "secure",
+      "account"
+    ],
+    "knowledge": "Suspicious URLs can indicate phishing or other malicious activity. Warning signs include unfamiliar domains, IP addresses used instead of domain names, unusual domain structures, suspicious URL keywords, and domains that do not match the organization being impersonated."
+  },
+  {
+    "id": "qr_payment_scam",
+    "topic": "QR payment scam",
+    "signals": [
+      "financial_action",
+      "financial_context"
+    ],
+    "keywords": [
+      "qr",
+      "scan",
+      "upi",
+      "payment"
+    ],
+    "knowledge": "QR codes can be used to redirect users to fraudulent websites or initiate unwanted payment flows. Users should verify the destination and payment details before scanning or authorizing a transaction."
+  },
+  {
+    "id": "account_threat",
+    "topic": "account threat",
+    "signals": [
+      "account_threat"
+    ],
+    "keywords": [
+      "account will be blocked",
+      "account will be suspended",
+      "account has been blocked",
+      "account has been suspended",
+      "account will be closed",
+      "account will be deactivated"
+    ],
+    "knowledge": "Threats that an account will be blocked, suspended, closed, or deactivated can be used as social-engineering pressure tactics. Users should verify such claims directly through the organization's official application, website, or customer-support channel."
+  }
+]
