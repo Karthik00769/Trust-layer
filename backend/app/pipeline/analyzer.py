@@ -4,43 +4,68 @@ from app.security.engine import analyze_security_signals
 from app.risk.engine import calculate_risk
 
 
-
 def analyze_text(text: str) -> BuddyResponse:
+
+    # --------------------------------------------------
+    # 1. Extract structured context
+    # --------------------------------------------------
 
     context = extract_context(text)
 
+    # --------------------------------------------------
+    # 2. Analyze security signals
+    # --------------------------------------------------
+
     security_result = analyze_security_signals(context)
+
+    # --------------------------------------------------
+    # 3. Calculate risk
+    # --------------------------------------------------
 
     risk_result = calculate_risk(security_result)
 
+    # --------------------------------------------------
+    # 4. Generate Buddy explanation
+    # --------------------------------------------------
+
     if risk_result["classification"] == "HIGH_RISK":
+
         explanation = (
             "The message contains multiple indicators commonly associated "
             "with financial scams or phishing attempts."
         )
+
         recommended_action = (
             "Do not click links, provide credentials, share OTPs, "
             "or make payments."
         )
 
     elif risk_result["classification"] == "SUSPICIOUS":
+
         explanation = (
-            "The message contains some suspicious characteristics "
+            "The message contains suspicious characteristics "
             "that require caution."
         )
+
         recommended_action = (
-            "Verify the message through an official source before taking action."
+            "Verify the message through an official source before "
+            "taking any action."
         )
 
     else:
+
         explanation = (
             "No major suspicious indicators were detected by the current "
             "security rules."
         )
+
         recommended_action = (
             "No immediate action is required, but remain cautious."
         )
 
+    # --------------------------------------------------
+    # 5. Return Buddy response
+    # --------------------------------------------------
 
     return BuddyResponse(
         risk_score=risk_result["risk_score"],
