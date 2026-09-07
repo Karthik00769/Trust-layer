@@ -1,68 +1,78 @@
 from app.extraction.context import extract_context
 from app.security.engine import analyze_security_signals
-from app.rag.retriever import retrieve_knowledge
 from app.risk.engine import calculate_risk
+from app.rag.retriever import retrieve_knowledge
+from app.llm.fallback import FallbackLLMClient
 
 
 def analyze_text(text: str) -> dict:
 
-    # Step 1: Extract structured context
+    # ---------------------------------------------------------
+    # 1. Extract useful context from the message
+    # ---------------------------------------------------------
+
     context = extract_context(text)
 
-    # Step 2: Analyze deterministic security signals
-    security_result = analyze_security_signals(context)
+    # ---------------------------------------------------------
+    # 2. Analyze security signals
+    # ---------------------------------------------------------
 
-    # Step 3: Calculate deterministic risk score
-    risk_result = calculate_risk(security_result)
+    security_result = analyze_security_signals(
+        context
+    )
 
-    # Step 4: Retrieve relevant security knowledge
+    # ---------------------------------------------------------
+    # 3. Calculate deterministic risk
+    # ---------------------------------------------------------
+
+    risk_result = calculate_risk(
+        security_result
+    )
+
+    # ---------------------------------------------------------
+    # 4. Retrieve relevant security knowledge
+    # ---------------------------------------------------------
+
     rag_knowledge = retrieve_knowledge(
         security_result,
         context=context
     )
 
-    # Step 5: Generate explanation and recommended action
-    if risk_result["classification"] == "HIGH_RISK":
+    # ---------------------------------------------------------
+    # 5. Ask the LLM to explain the findings
+    #
+    # The LLM does NOT determine risk_score or classification.
+    # Those values come exclusively from the Risk Engine.
+    # ---------------------------------------------------------
 
-        explanation = (
-            "The message contains multiple indicators commonly "
-            "associated with financial scams or phishing attempts."
-        )
+    llm_client = FallbackLLMClient()
 
-        recommended_action = (
-            "Do not click links, provide credentials, "
-            "share OTPs, or make payments."
-        )
+    llm_result = llm_client.analyze(
 
-    elif risk_result["classification"] == "SUSPICIOUS":
+        message=text,
 
-        explanation = (
-            "The message contains some indicators that "
-            "require additional caution."
-        )
+        security_evidence={
+            "signals": security_result["signals"],
+            "threats": security_result["threats"],
+            "evidence": security_result["evidence"],
+            "url_results": security_result["url_results"],
+            "threat_intelligence": (
+                security_result["threat_intelligence"]
+            )
+        },
 
-        recommended_action = (
-            "Verify the request through an official source "
-            "before taking any action."
-        )
+        rag_knowledge=rag_knowledge
+    )
 
-    else:
-
-        explanation = (
-            "No major suspicious indicators were detected "
-            "by the current security rules."
-        )
-
-        recommended_action = (
-            "No immediate action is required, "
-            "but remain cautious."
-        )
+    # ---------------------------------------------------------
+    # 6. Build final Buddy response
+    # ---------------------------------------------------------
 
     return {
         "risk_score": risk_result["risk_score"],
         "classification": risk_result["classification"],
         "threats": security_result["threats"],
-        "explanation": explanation,
-        "recommended_action": recommended_action,
+        "explanation": llm_result.explanation,
+        "recommended_action": llm_result.recommended_action,
         "rag_knowledge": rag_knowledge
     }

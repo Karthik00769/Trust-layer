@@ -2,7 +2,10 @@ import re
 from urllib.parse import urlparse
 
 
-def analyze_url(url: str, detected_brands: list[str] | None = None) -> dict:
+def analyze_url(
+    url: str,
+    detected_brands: list[str] | None = None
+) -> dict:
 
     detected_brands = detected_brands or []
 
@@ -14,31 +17,32 @@ def analyze_url(url: str, detected_brands: list[str] | None = None) -> dict:
     signals = []
     threats = []
 
-    # --------------------------------------------------
-    # 1. Check URL scheme
-    # --------------------------------------------------
-
     if parsed.scheme == "https":
         signals.append("https")
 
     elif parsed.scheme == "http":
         signals.append("http")
-
         threats.append("Unencrypted HTTP link")
 
-    # --------------------------------------------------
-    # 2. Check if hostname is an IP address
-    # --------------------------------------------------
+    # ---------------------------------------------------------
+    # Detect IP-address URLs
+    # ---------------------------------------------------------
 
     ip_pattern = r"^\d{1,3}(\.\d{1,3}){3}$"
 
-    if re.match(ip_pattern, hostname):
-        signals.append("ip_address_url")
-        threats.append("IP address used instead of a domain name")
+    is_ip_address = bool(
+        re.match(ip_pattern, hostname)
+    )
 
-    # --------------------------------------------------
-    # 3. Suspicious keywords in domain/path
-    # --------------------------------------------------
+    if is_ip_address:
+        signals.append("ip_address_url")
+        threats.append(
+            "IP address used instead of a domain name"
+        )
+
+    # ---------------------------------------------------------
+    # Suspicious URL keywords
+    # ---------------------------------------------------------
 
     suspicious_keywords = [
         "verify",
@@ -62,6 +66,7 @@ def analyze_url(url: str, detected_brands: list[str] | None = None) -> dict:
     ]
 
     if suspicious_keywords_found:
+
         signals.append("suspicious_url_keywords")
 
         threats.append(
@@ -69,9 +74,9 @@ def analyze_url(url: str, detected_brands: list[str] | None = None) -> dict:
             + ", ".join(suspicious_keywords_found)
         )
 
-    # --------------------------------------------------
-    # 4. Check suspicious TLDs
-    # --------------------------------------------------
+    # ---------------------------------------------------------
+    # Suspicious TLDs
+    # ---------------------------------------------------------
 
     suspicious_tlds = [
         ".xyz",
@@ -83,32 +88,47 @@ def analyze_url(url: str, detected_brands: list[str] | None = None) -> dict:
         ".site"
     ]
 
-    if any(hostname.endswith(tld) for tld in suspicious_tlds):
-        signals.append("suspicious_tld")
-        threats.append("Suspicious domain extension")
+    if any(
+        hostname.endswith(tld)
+        for tld in suspicious_tlds
+    ):
 
-    # --------------------------------------------------
-    # 5. Check excessive subdomains
-    # --------------------------------------------------
+        signals.append("suspicious_tld")
+
+        threats.append(
+            "Suspicious domain extension"
+        )
+
+    # ---------------------------------------------------------
+    # Complex domain structure
+    #
+    # Only check this for actual domain names.
+    # An IP address such as 192.168.1.25 must not be treated
+    # as having multiple subdomains.
+    # ---------------------------------------------------------
 
     domain_parts = hostname.split(".")
 
-    if len(domain_parts) >= 4:
-        signals.append("many_subdomains")
-        threats.append("Unusually complex domain structure")
+    if (
+        not is_ip_address
+        and len(domain_parts) >= 4
+    ):
 
-    # --------------------------------------------------
-    # 6. Detect brand impersonation
-    # --------------------------------------------------
+        signals.append("many_subdomains")
+
+        threats.append(
+            "Unusually complex domain structure"
+        )
+
+    # ---------------------------------------------------------
+    # Possible financial brand impersonation
+    # ---------------------------------------------------------
 
     brand_mismatch = []
 
     for brand in detected_brands:
 
         if brand.lower() in hostname:
-
-            # The brand appearing in the hostname does not
-            # automatically mean it is the official domain.
 
             official_like_domains = {
                 "sbi": ["sbi.co.in"],
@@ -124,19 +144,21 @@ def analyze_url(url: str, detected_brands: list[str] | None = None) -> dict:
             )
 
             if hostname not in official_domains:
-                brand_mismatch.append(brand)
+
+                brand_mismatch.append(
+                    brand
+                )
 
     if brand_mismatch:
-        signals.append("possible_brand_impersonation")
+
+        signals.append(
+            "possible_brand_impersonation"
+        )
 
         threats.append(
             "Possible financial brand impersonation: "
             + ", ".join(brand_mismatch)
         )
-
-    # --------------------------------------------------
-    # Return URL security evidence
-    # --------------------------------------------------
 
     return {
         "url": url,
