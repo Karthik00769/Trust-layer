@@ -221,7 +221,6 @@ Rather than treating trust as a static value, the system is designed around the 
 
 Trust-layer is currently under active development, with the Android client and Trust Engine being developed as separate components and progressively integrated through the defined API contract.
 
-```
-```
+
 
                   
