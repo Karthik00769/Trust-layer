@@ -15,5 +15,6 @@ data class TrustAssessment(
     val recommendation: String = "",
     val isThreatDetected: Boolean,
     val title: String = "",
+    val confidence: Float? = null,
     val timestamp: Long = System.currentTimeMillis()
 )

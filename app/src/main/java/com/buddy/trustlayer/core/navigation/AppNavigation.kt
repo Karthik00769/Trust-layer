@@ -49,12 +49,16 @@ fun TrustLayerApp() {
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
+                    onNavigateToDevice = { navController.navigate(Screen.Device.route) }
                 )
             }
             composable(Screen.Buddy.route) {
                 BuddyScreen(
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToAssessment = { assessmentId ->
+                        navController.navigate(Screen.Assessment.createRoute(assessmentId))
+                    }
                 )
             }
             composable(Screen.History.route) {

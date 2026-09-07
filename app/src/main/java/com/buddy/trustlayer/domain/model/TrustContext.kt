@@ -10,5 +10,8 @@ data class TrustContext(
     val evidenceId: String = "",
     val content: String,
     val url: String = "",
+    val source: String? = null,
+    val evidenceType: String = "TEXT",
+    val deviceContext: Map<String, String>? = null,
     val timestamp: Long = System.currentTimeMillis()
 )

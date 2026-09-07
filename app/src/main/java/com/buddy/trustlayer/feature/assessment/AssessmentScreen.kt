@@ -78,6 +78,14 @@ fun AssessmentScreen(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    assessment.confidence?.let { conf ->
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Model Confidence: ${(conf * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 

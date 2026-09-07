@@ -6,35 +6,30 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.buddy.trustlayer.data.repository.InMemoryContextRepository
-import com.buddy.trustlayer.data.repository.InMemoryHistoryRepository
-import com.buddy.trustlayer.data.repository.MockTrustEngineRepository
-import kotlinx.coroutines.delay
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.buddy.trustlayer.core.common.AppConfig
+import com.buddy.trustlayer.core.common.ViewModelFactory
 
 @Composable
 fun EngineScreen(
     contextId: String,
     onAssessmentComplete: (String) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: EngineViewModel = viewModel(factory = ViewModelFactory)
 ) {
-    var currentStage by remember { mutableStateOf("Collecting evidence...") }
-    
+    val uiState by viewModel.uiState.collectAsState()
+
     LaunchedEffect(contextId) {
-        val context = InMemoryContextRepository.getContext(contextId)
-        if (context != null) {
-            delay(800)
-            currentStage = "Inspecting signals..."
-            delay(800)
-            currentStage = "Assessing risk..."
-            delay(800)
-            currentStage = "Preparing recommendation..."
-            
-            val assessment = MockTrustEngineRepository().assess(context)
-            InMemoryHistoryRepository.addAssessment(assessment)
-            onAssessmentComplete(assessment.id)
-        } else {
-            onNavigateBack()
+        viewModel.processContext(contextId)
+    }
+
+    LaunchedEffect(uiState) {
+        if (uiState is EngineUiState.Success) {
+            onAssessmentComplete((uiState as EngineUiState.Success).assessmentId)
+        } else if (uiState is EngineUiState.Error) {
+            // Optional: Delay and navigate back on error
         }
     }
 
@@ -49,28 +44,67 @@ fun EngineScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(64.dp),
-                strokeWidth = 6.dp
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Text(
-                text = currentStage,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "Please wait while Trust Layer analyzes the content.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            when (val state = uiState) {
+                is EngineUiState.Idle, is EngineUiState.Processing -> {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(64.dp),
+                        strokeWidth = 6.dp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    Text(
+                        text = if (state is EngineUiState.Processing) state.stage else "Initializing...",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "Trust Engine is analyzing the evidence.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = if (AppConfig.USE_MOCK_ENGINE) "Mode: Local Mock Engine" else "Mode: Remote API Backend",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                is EngineUiState.Error -> {
+                    Text(
+                        text = "!",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Analysis Failed",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = state.message,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(onClick = onNavigateBack) {
+                        Text("Go Back")
+                    }
+                }
+                is EngineUiState.Success -> {
+                    // Handled by LaunchedEffect
+                }
+            }
         }
     }
 }
