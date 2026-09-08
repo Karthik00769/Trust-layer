@@ -3,7 +3,34 @@ import re
 
 def extract_context(text: str) -> dict:
 
-    urls = re.findall(r"https?://[^\s]+", text)
+    # ---------------------------------------------------------
+    # Extract URLs from the original input.
+    # ---------------------------------------------------------
+
+    urls = re.findall(
+        r"https?://[^\s]+",
+        text
+    )
+
+    # ---------------------------------------------------------
+    # Remove URLs before analysing message-level context.
+    #
+    # This is important because words inside URLs such as
+    # "sbi", "verify", or "login" must not automatically become
+    # message-level financial signals.
+    # ---------------------------------------------------------
+
+    text_without_urls = re.sub(
+        r"https?://[^\s]+",
+        "",
+        text
+    )
+
+    lower_text = text_without_urls.lower()
+
+    # ---------------------------------------------------------
+    # Message-level security keywords
+    # ---------------------------------------------------------
 
     urgency_keywords = [
         "immediately",
@@ -68,7 +95,9 @@ def extract_context(text: str) -> dict:
         "account will be deactivated"
     ]
 
-    lower_text = text.lower()
+    # ---------------------------------------------------------
+    # Detect message-level signals ONLY from text_without_urls.
+    # ---------------------------------------------------------
 
     urgency_signals = [
         keyword
@@ -82,17 +111,10 @@ def extract_context(text: str) -> dict:
         if keyword in lower_text
     ]
 
-    # Remove URLs before checking for credential requests.
-    text_without_urls = re.sub(
-        r"https?://[^\s]+",
-        "",
-        lower_text
-    )
-
     credential_signals = [
         keyword
         for keyword in credential_keywords
-        if keyword in text_without_urls
+        if keyword in lower_text
     ]
 
     detected_brands = [

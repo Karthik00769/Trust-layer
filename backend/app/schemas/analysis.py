@@ -4,6 +4,8 @@ from pydantic import BaseModel
 class TextAnalysisRequest(BaseModel):
     text: str
 
+class URLAnalysisRequest(BaseModel):
+    url: str
 
 class BuddyResponse(BaseModel):
     risk_score: int

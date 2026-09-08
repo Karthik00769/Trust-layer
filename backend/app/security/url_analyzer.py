@@ -103,8 +103,8 @@ def analyze_url(
     # Complex domain structure
     #
     # Only check this for actual domain names.
-    # An IP address such as 192.168.1.25 must not be treated
-    # as having multiple subdomains.
+    # An IP address must not be treated as having multiple
+    # subdomains.
     # ---------------------------------------------------------
 
     domain_parts = hostname.split(".")
@@ -122,24 +122,43 @@ def analyze_url(
 
     # ---------------------------------------------------------
     # Possible financial brand impersonation
+    #
+    # Brand detection for URLs belongs here because it is a
+    # property of the URL, not the natural-language message.
     # ---------------------------------------------------------
+
+    financial_brands = [
+        "sbi",
+        "hdfc",
+        "icici",
+        "axis",
+        "kotak",
+        "paytm",
+        "phonepe",
+        "gpay",
+        "googlepay"
+    ]
+
+    official_like_domains = {
+        "sbi": ["sbi.co.in"],
+        "hdfc": ["hdfcbank.com"],
+        "icici": ["icicibank.com"],
+        "axis": ["axisbank.com"],
+        "kotak": ["kotak.com"],
+        "paytm": ["paytm.com"],
+        "phonepe": ["phonepe.com"],
+        "gpay": ["google.com"],
+        "googlepay": ["google.com"]
+    }
 
     brand_mismatch = []
 
-    for brand in detected_brands:
+    for brand in financial_brands:
 
-        if brand.lower() in hostname:
-
-            official_like_domains = {
-                "sbi": ["sbi.co.in"],
-                "hdfc": ["hdfcbank.com"],
-                "icici": ["icicibank.com"],
-                "axis": ["axisbank.com"],
-                "kotak": ["kotak.com"]
-            }
+        if brand in hostname:
 
             official_domains = official_like_domains.get(
-                brand.lower(),
+                brand,
                 []
             )
 

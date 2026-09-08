@@ -5,10 +5,10 @@ from app.rag.retriever import retrieve_knowledge
 from app.llm.fallback import FallbackLLMClient
 
 
-def analyze_text(text: str) -> dict:
+def analyze_input(text: str) -> dict:
 
     # ---------------------------------------------------------
-    # 1. Extract useful context from the message
+    # 1. Extract useful context from the input
     # ---------------------------------------------------------
 
     context = extract_context(text)
@@ -58,7 +58,8 @@ def analyze_text(text: str) -> dict:
             "url_results": security_result["url_results"],
             "threat_intelligence": (
                 security_result["threat_intelligence"]
-            )
+            ),
+            "risk_result": risk_result
         },
 
         rag_knowledge=rag_knowledge
@@ -76,3 +77,8 @@ def analyze_text(text: str) -> dict:
         "recommended_action": llm_result.recommended_action,
         "rag_knowledge": rag_knowledge
     }
+
+
+def analyze_text(text: str) -> dict:
+
+    return analyze_input(text)
