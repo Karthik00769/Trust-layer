@@ -1,11 +1,11 @@
 
-# Trust-layer
+# Trust-Shield
 
-Trust-layer is an Android-based trust assessment platform designed to evaluate the trustworthiness of digital interactions using contextual information and a dedicated Trust Engine.
+Trust-Shield is an Android-based trust assessment platform designed to evaluate the trustworthiness of digital interactions using contextual information and a dedicated Trust Engine.
 
 ## Overview
 
-Trust-layer consists of an Android client and a separately developed Trust Engine backend. The Android application acts as the user-facing layer of the system, allowing users to interact with trust assessments, contextual information, device information, and the Trust Engine.
+Trust-Shield consists of an Android client and a separately developed Trust Engine backend. The Android application acts as the user-facing layer of the system, allowing users to interact with trust assessments, contextual information, device information, and the Trust Engine.
 
 The Android client is built natively using Kotlin and Jetpack Compose, with a repository-based architecture that allows the application to work with both a mock Trust Engine implementation during development and a remote Trust Engine through an API.
 
@@ -159,7 +159,7 @@ app/src/main/java/com/buddy/trustlayer/
 
 ## Architecture Principles
 
-Trust-layer follows a separation-of-concerns approach where each layer has a specific responsibility:
+Trust-Shield follows a separation-of-concerns approach where each layer has a specific responsibility:
 
 ```text
 UI Layer
@@ -213,13 +213,13 @@ The Trust Engine backend is being developed separately and is integrated with th
 
 ## Project Goal
 
-The goal of Trust-layer is to provide a dedicated trust layer for digital interactions by combining contextual information with Trust Engine assessments.
+The goal of Trust-Shield is to provide a dedicated trust layer for digital interactions by combining contextual information with Trust Engine assessments.
 
 Rather than treating trust as a static value, the system is designed around the idea that trust can be evaluated using the context surrounding an interaction. The Android client provides the interface through which these assessments and contextual signals can be accessed and presented to the user.
 
 ## Current Development
 
-Trust-layer is currently under active development, with the Android client and Trust Engine being developed as separate components and progressively integrated through the defined API contract.
+Trust-Shield is currently under active development, with the Android client and Trust Engine being developed as separate components and progressively integrated through the defined API contract.
 
 
 
