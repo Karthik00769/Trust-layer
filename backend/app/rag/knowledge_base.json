@@ -173,5 +173,22 @@
       "account will be deactivated"
     ],
     "knowledge": "Threats that an account will be blocked, suspended, closed, or deactivated can be used as social-engineering pressure tactics. Users should verify such claims directly through the organization's official application, website, or customer-support channel."
-  }
+  },
+
+  {
+  "id": "upi_identity_mismatch",
+  "topic": "UPI identity verification",
+  "signals": [
+    "upi_invalid_vpa",
+    "upi_payee_name_mismatch"
+  ],
+  "keywords": [
+    "upi",
+    "vpa",
+    "payee",
+    "account holder",
+    "name mismatch"
+  ],
+  "knowledge": "A UPI QR code may contain a payment address and payee name that should be checked independently. A valid UPI address does not by itself prove that a payment request is legitimate. A failed verification or mismatch between the QR payee name and verified account-holder name can be a warning sign and should be investigated before payment."
+}
 ]

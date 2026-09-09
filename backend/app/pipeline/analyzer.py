@@ -5,52 +5,23 @@ from app.rag.retriever import retrieve_knowledge
 from app.llm.fallback import FallbackLLMClient
 
 
-def analyze_input(text: str) -> dict:
+def _generate_buddy_response(
+    message: str,
+    security_result: dict,
+    risk_result: dict,
+    rag_knowledge: list[dict]
+) -> dict:
+    """
+    Run the shared RAG + LLM response generation stage.
 
-    # ---------------------------------------------------------
-    # 1. Extract useful context from the input
-    # ---------------------------------------------------------
-
-    context = extract_context(text)
-
-    # ---------------------------------------------------------
-    # 2. Analyze security signals
-    # ---------------------------------------------------------
-
-    security_result = analyze_security_signals(
-        context
-    )
-
-    # ---------------------------------------------------------
-    # 3. Calculate deterministic risk
-    # ---------------------------------------------------------
-
-    risk_result = calculate_risk(
-        security_result
-    )
-
-    # ---------------------------------------------------------
-    # 4. Retrieve relevant security knowledge
-    # ---------------------------------------------------------
-
-    rag_knowledge = retrieve_knowledge(
-        security_result,
-        context=context
-    )
-
-    # ---------------------------------------------------------
-    # 5. Ask the LLM to explain the findings
-    #
-    # The LLM does NOT determine risk_score or classification.
-    # Those values come exclusively from the Risk Engine.
-    # ---------------------------------------------------------
+    The LLM explains the deterministic security result.
+    It does not determine the final risk score or classification.
+    """
 
     llm_client = FallbackLLMClient()
 
     llm_result = llm_client.analyze(
-
-        message=text,
-
+        message=message,
         security_evidence={
             "signals": security_result["signals"],
             "threats": security_result["threats"],
@@ -61,13 +32,8 @@ def analyze_input(text: str) -> dict:
             ),
             "risk_result": risk_result
         },
-
         rag_knowledge=rag_knowledge
     )
-
-    # ---------------------------------------------------------
-    # 6. Build final Buddy response
-    # ---------------------------------------------------------
 
     return {
         "risk_score": risk_result["risk_score"],
@@ -79,6 +45,75 @@ def analyze_input(text: str) -> dict:
     }
 
 
+def analyze_input(text: str) -> dict:
+
+    context = extract_context(text)
+
+    security_result = analyze_security_signals(
+        context
+    )
+
+    risk_result = calculate_risk(
+        security_result
+    )
+
+    rag_knowledge = retrieve_knowledge(
+        security_result,
+        context=context
+    )
+
+    return _generate_buddy_response(
+        message=text,
+        security_result=security_result,
+        risk_result=risk_result,
+        rag_knowledge=rag_knowledge
+    )
+
+
 def analyze_text(text: str) -> dict:
 
     return analyze_input(text)
+
+
+def analyze_upi_payload(payload: str) -> dict:
+    """
+    Analyze a UPI payment payload using Buddy's
+    shared Risk -> RAG -> LLM pipeline.
+
+    UPI-specific analysis happens before the shared
+    finalization stage.
+    """
+
+    from app.upi import analyze_upi
+
+    upi_result = analyze_upi(
+        payload
+    )
+
+    security_result = {
+        "signals": upi_result["signals"],
+        "threats": upi_result["threats"],
+        "evidence": {
+            "upi": [
+                upi_result["verification"]
+            ]
+        },
+        "url_results": [],
+        "threat_intelligence": []
+    }
+
+    risk_result = calculate_risk(
+        security_result
+    )
+
+    rag_knowledge = retrieve_knowledge(
+        security_result,
+        context=upi_result["parsed"]
+    )
+
+    return _generate_buddy_response(
+        message=payload,
+        security_result=security_result,
+        risk_result=risk_result,
+        rag_knowledge=rag_knowledge
+    )

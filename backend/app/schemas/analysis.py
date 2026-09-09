@@ -7,6 +7,9 @@ class TextAnalysisRequest(BaseModel):
 class URLAnalysisRequest(BaseModel):
     url: str
 
+class QRAnalysisRequest(BaseModel):
+    image_path: str
+
 class BuddyResponse(BaseModel):
     risk_score: int
     classification: str
