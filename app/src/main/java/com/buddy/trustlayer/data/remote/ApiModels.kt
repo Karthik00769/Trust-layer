@@ -1,20 +1,20 @@
 package com.buddy.trustlayer.data.remote
 
-data class AssessmentRequestDto(
-    val content: String,
-    val source: String? = null,
-    val evidenceType: String = "TEXT",
-    val deviceContext: Map<String, String>? = null
+import com.google.gson.annotations.SerializedName
+
+data class TextAnalysisRequestDto(
+    @SerializedName("text") val text: String
 )
 
-data class AssessmentResponseDto(
-    val id: String? = null,
-    val riskScore: Float? = 0f,
-    val riskLevel: String? = "LOW",
-    val threatDetected: Boolean? = false,
-    val summary: String? = "",
-    val indicators: List<String>? = emptyList(),
-    val recommendation: String? = "",
-    val confidence: Float? = null,
-    val timestamp: Long? = null
+data class UrlAnalysisRequestDto(
+    @SerializedName("url") val url: String
+)
+
+data class BuddyResponseDto(
+    @SerializedName("risk_score") val riskScore: Int?,
+    @SerializedName("classification") val classification: String?,
+    @SerializedName("threats") val threats: List<String>?,
+    @SerializedName("explanation") val explanation: String?,
+    @SerializedName("recommended_action") val recommendedAction: String?,
+    @SerializedName("rag_knowledge") val ragKnowledge: List<Map<String, Any>>? = null
 )
