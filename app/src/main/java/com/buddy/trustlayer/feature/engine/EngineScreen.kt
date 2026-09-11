@@ -16,6 +16,7 @@ import com.buddy.trustlayer.core.common.ViewModelFactory
 fun EngineScreen(
     contextId: String,
     onAssessmentComplete: (String) -> Unit,
+    onNavigateHome: () -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: EngineViewModel = viewModel(factory = ViewModelFactory)
 ) {
@@ -28,8 +29,6 @@ fun EngineScreen(
     LaunchedEffect(uiState) {
         if (uiState is EngineUiState.Success) {
             onAssessmentComplete((uiState as EngineUiState.Success).assessmentId)
-        } else if (uiState is EngineUiState.Error) {
-            // Optional: Delay and navigate back on error
         }
     }
 
@@ -80,7 +79,7 @@ fun EngineScreen(
                 }
                 is EngineUiState.Error -> {
                     Text(
-                        text = "!",
+                        text = "⚠️",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.displayLarge
                     )
@@ -94,11 +93,17 @@ fun EngineScreen(
                     Text(
                         text = state.message,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
+                        textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(24.dp))
-                    Button(onClick = onNavigateBack) {
-                        Text("Go Back")
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(onClick = onNavigateBack) {
+                            Text("Try Again")
+                        }
+                        Button(onClick = onNavigateHome) {
+                            Text("Return Home")
+                        }
                     }
                 }
                 is EngineUiState.Success -> {

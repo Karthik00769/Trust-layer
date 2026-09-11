@@ -27,6 +27,20 @@ import com.buddy.trustlayer.feature.verification.VerificationScreen
 fun TrustLayerApp() {
     val navController = rememberNavController()
 
+    fun navigateHome() {
+        navController.navigate(Screen.Home.route) {
+            popUpTo(Screen.Home.route) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
+    fun navigateToHistory() {
+        navController.navigate(Screen.History.route) {
+            popUpTo(Screen.Home.route)
+            launchSingleTop = true
+        }
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navController = navController)
@@ -41,15 +55,7 @@ fun TrustLayerApp() {
                 HomeScreen(
                     onNavigateToEvidence = { navController.navigate(Screen.Evidence.route) },
                     onNavigateToBuddy = { navController.navigate(Screen.Buddy.route) },
-                    onNavigateToHistory = {
-                        navController.navigate(Screen.History.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
+                    onNavigateToHistory = { navigateToHistory() },
                     onNavigateToDevice = { navController.navigate(Screen.Device.route) }
                 )
             }
@@ -66,13 +72,7 @@ fun TrustLayerApp() {
                     onNavigateToAssessment = { assessmentId ->
                         navController.navigate(Screen.Assessment.createRoute(assessmentId))
                     },
-                    onNavigateBack = { 
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                    onNavigateBack = { navigateHome() }
                 )
             }
             
@@ -93,11 +93,12 @@ fun TrustLayerApp() {
                 EngineScreen(
                     contextId = contextId,
                     onAssessmentComplete = { assessmentId ->
-                        // Navigate to Assessment, clear Engine from backstack
+                        // Navigate to Assessment, clear Engine and Evidence from backstack
                         navController.navigate(Screen.Assessment.createRoute(assessmentId)) {
                             popUpTo(Screen.Evidence.route) { inclusive = true }
                         }
                     },
+                    onNavigateHome = { navigateHome() },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -112,6 +113,8 @@ fun TrustLayerApp() {
                     onNavigateToVerification = { id ->
                         navController.navigate(Screen.Verification.createRoute(id))
                     },
+                    onNavigateHome = { navigateHome() },
+                    onNavigateToHistory = { navigateToHistory() },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -123,12 +126,8 @@ fun TrustLayerApp() {
                 val assessmentId = backStackEntry.arguments?.getString("assessmentId") ?: ""
                 VerificationScreen(
                     assessmentId = assessmentId,
-                    onComplete = {
-                        // Navigate to History, clear workflow stack
-                        navController.navigate(Screen.History.route) {
-                            popUpTo(Screen.Home.route)
-                        }
-                    },
+                    onComplete = { navigateToHistory() },
+                    onNavigateHome = { navigateHome() },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

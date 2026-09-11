@@ -15,6 +15,7 @@ import com.buddy.trustlayer.data.repository.InMemoryHistoryRepository
 fun VerificationScreen(
     assessmentId: String,
     onComplete: () -> Unit,
+    onNavigateHome: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val assessment = InMemoryHistoryRepository.getAssessment(assessmentId)
@@ -29,6 +30,11 @@ fun VerificationScreen(
                 navigationIcon = {
                     TextButton(onClick = onNavigateBack) {
                         Text("< Back")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onNavigateHome) {
+                        Text("Home")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -94,7 +100,17 @@ fun VerificationScreen(
                 enabled = step1Checked && step2Checked,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Complete & Save", fontWeight = FontWeight.Bold)
+                Text("Complete & View History", fontWeight = FontWeight.Bold)
+            }
+
+            OutlinedButton(
+                onClick = onNavigateHome,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Return to Home", fontWeight = FontWeight.Bold)
             }
         }
     }
