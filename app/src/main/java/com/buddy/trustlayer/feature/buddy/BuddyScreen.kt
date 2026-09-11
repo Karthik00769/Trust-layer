@@ -1,5 +1,10 @@
 package com.buddy.trustlayer.feature.buddy
 
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -25,9 +31,21 @@ fun BuddyScreen(
     onNavigateToAssessment: (String) -> Unit,
     viewModel: BuddyViewModel = viewModel(factory = ViewModelFactory)
 ) {
+    val context = LocalContext.current
     val messages by viewModel.messages.collectAsState()
     val isProcessing by viewModel.isProcessing.collectAsState()
     var inputText by remember { mutableStateOf("") }
+
+    val speechRecognizerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+            if (!spokenText.isNullOrBlank()) {
+                inputText = spokenText
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -59,7 +77,7 @@ fun BuddyScreen(
                 if (messages.isEmpty()) {
                     item {
                         Text(
-                            text = "Paste suspicious messages, links, or texts here. I will analyze them for risks.",
+                            text = "Paste suspicious messages or ask a safety question. I will analyze them using the Trust Layer.",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -105,11 +123,29 @@ fun BuddyScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = {
+                        try {
+                            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                putcharExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                putExtra(RecognizerIntent.EXTRA_PROMPT, "Ask Trust Buddy...")
+                            }
+                            speechRecognizerLauncher.launch(intent)
+                        } catch (e: Exception) {
+                            // Speech recognizer not available on device
+                        }
+                    }
+                ) {
+                    Text("🎤", style = MaterialTheme.typography.titleMedium)
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = { inputText = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Enter evidence...") },
+                    placeholder = { Text("Ask or paste evidence...") },
                     shape = RoundedCornerShape(24.dp),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     keyboardActions = KeyboardActions(
@@ -148,6 +184,10 @@ fun BuddyScreen(
             }
         }
     }
+}
+
+private fun Intent.putcharExtra(extraLanguageModel: String, languageModelFreeForm: String) {
+    putExtra(extraLanguageModel, languageModelFreeForm)
 }
 
 @Composable

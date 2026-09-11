@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,9 @@ fun HistoryScreen(
     onNavigateBack: () -> Unit
 ) {
     val assessments by InMemoryHistoryRepository.assessments.collectAsState()
+    val totalChecks = assessments.size
+    val threatsBlocked = assessments.count { it.isThreatDetected || it.riskLevel == RiskLevel.HIGH || it.riskLevel == RiskLevel.CRITICAL }
+    val safeVerified = assessments.count { !it.isThreatDetected && it.riskLevel == RiskLevel.LOW }
 
     Scaffold(
         topBar = {
@@ -67,6 +71,32 @@ fun HistoryScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Summary Metrics Header Card
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Security Summary",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            MetricItem("Total Checks", "$totalChecks")
+                            MetricItem("Threats Blocked", "$threatsBlocked", MaterialTheme.colorScheme.error)
+                            MetricItem("Safe Verified", "$safeVerified", MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+
                 items(assessments) { assessment ->
                     val riskColor = when (assessment.riskLevel) {
                         RiskLevel.LOW -> MaterialTheme.colorScheme.primary
@@ -116,5 +146,13 @@ fun HistoryScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MetricItem(label: String, value: String, valueColor: Color = MaterialTheme.colorScheme.onSurface) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = valueColor)
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

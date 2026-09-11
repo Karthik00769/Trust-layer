@@ -5,7 +5,7 @@ object AppConfig {
      * Set to true to use the local mock engine.
      * Set to false to use the remote Python backend.
      */
-    var USE_MOCK_ENGINE = true
+    var USE_MOCK_ENGINE = false
     
     /**
      * The base URL of the Python backend.
