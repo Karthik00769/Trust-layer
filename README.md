@@ -1,6 +1,6 @@
-# Buddy — AI Financial Firewall / Trust Layer
+# Trust Buddy — AI Financial Firewall / Trust Layer
 
-**Buddy** is an AI-assisted financial security layer designed to help users evaluate potentially dangerous financial messages, URLs, QR/payment-related evidence, and other suspicious content before they trust, open, share, or act on it.
+**Trust Buddy** is an AI-assisted financial security layer designed to help users evaluate potentially dangerous financial messages, URLs, QR/payment-related evidence, and other suspicious content before they trust, open, share, or act on it.
 
 The central design philosophy behind Buddy is:
 
